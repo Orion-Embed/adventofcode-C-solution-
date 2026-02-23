@@ -1,68 +1,52 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-long long get_max(char *line);
+long long pick_max_12(char *line) {
+  int len = strlen(line);
+  if (line[len - 1] == '\n')
+    line[--len] = '\0';
+  if (len < 12)
+    return 0; // not enough digits
+
+  char result[13]; // 12 digits + null
+  int pos = 0;     // where to place next digit
+  int start = 0;
+  int to_pick = 12;
+
+  while (to_pick > 0) {
+    // search for max digit in range [start, len - to_pick]
+    int max_digit = -1;
+    int max_index = -1;
+    for (int i = start; i <= len - to_pick; i++) {
+      if (line[i] - '0' > max_digit) {
+        max_digit = line[i] - '0';
+        max_index = i;
+      }
+    }
+    result[pos++] = line[max_index];
+    start = max_index + 1;
+    to_pick--;
+  }
+  result[12] = '\0';
+
+  // convert to long long
+  return strtoll(result, NULL, 10);
+}
 
 int main(void) {
   FILE *file = fopen("puzzle_input_1.txt", "r");
   if (!file)
     return 1;
-  long long sum = 0;
+
+  long long total = 0;
   char line[10000];
+
   while (fgets(line, sizeof(line), file)) {
-    sum += get_max(line);
+    total += pick_max_12(line);
   }
 
-  printf("the result is ~> %lld\n", sum);
+  fclose(file);
+  printf("Total output joltage: %lld\n", total);
   return 0;
-}
-
-int search_max(char *line, int lowerb, int upperb,
-               int *position) // sizes from 0 to n
-{
-  int max = 0;
-  for (int i = lowerb; i <= upperb; ++i) {
-    if (*(line + i) <= '9' && *(line + i) >= '0') {
-      if (max < *(line + i)) {
-        max = *(line + i);
-        *position = i;
-      }
-    }
-  }
-  return max;
-}
-
-long long get_max(char *line) {
-  int len = strlen(line);
-  int first_pos = 0;
-  int last_pos = len;
-  int max_1 = 0, max_2 = 0;
-  int max = 0;
-  int position = 0;
-  int pos[12] = {0};
-  int pos_count = 0;
-  if (len > 0 && line[len - 1] == '\n') {
-    line[--len] = '\0';
-  }
-
-  if (len < 12)
-    return 0;
-
-  for (int i = 0; i < 12; ++i) {
-    max = search_max(line, first_pos, last_pos, &position);
-    if (position == len - 13 - i) {
-      long long out = 0;
-      for (int i = 0; i < 12 - count; ++i) {
-        pos[i + first_pos] = *(line + first_pos + i + 48);
-      }
-      return out;
-    }
-    first_pos++;
-
-    pos_count++
-  }
-
-  for (int i = first_pos; i < len; ++i) {
-  }
-  return (max_2 - 48 + 10 * (max_1 - 48));
 }
